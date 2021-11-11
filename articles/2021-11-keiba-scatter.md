@@ -461,7 +461,7 @@ Pythonのデファクトである[matplotlib](https://matplotlib.org/)との大�
 
 [公式ドキュメント](https://plotly.com/python/)で実装例が豊富なのでやりたいことはたいてい見つかりますし，近年[Plotly Express](https://plotly.com/python/plotly-express/)という高レベルインターフェースが追加されたため，導入のハードルは低くなっています．
 
-（Python用）Plotlyは下記のコマンドでインストールできます．
+Python用Plotlyは下記のコマンドでインストールできます．
 
 ```sh
 pip install plotly
@@ -613,6 +613,66 @@ def subplots_two_scatters_by_distance_class(
 
 ### `hovertemplate`にHTMLを直打ちした
 
+Plotlyでは，マーカーにカーソルを合わせたときに表示する情報を制御できます．Plotly Expressは[`hover_data`, `hover_name`等のオプションで手軽に指定できる](https://plotly.com/python/hover-text-and-formatting/#customizing-hover-text-with-plotly-express)機能を搭載しているのですが，今回はPlotly Expressを使わなかったため，より低レベルなインターフェースである[`hovertemplate`](https://plotly.com/python/hover-text-and-formatting/#customizing-hover-text-with-a-hovertemplate)で細かく指定しました．
+
+```python: scatter_plot.ipynb
+def add_scatter_trace_to_fig(
+        fig, x, y, color, text, name, i,
+        opacity=1., symbol='circle', size=10,
+        hover=True, linecolor='White'):
+    """figに対しscatterを追加（一部省略）"""
+    fig.add_trace(
+        go.Scatter(
+            # 略
+            text=text,
+            hovertemplate='%{text}' if hover else None,
+            # 略
+        ),
+    i//2+1, i%2+1)
+```
+
+`hovertemplate`ではグラフオブジェクト内の変数を自由に指定して，HTMLを書くことができます．今回は`text`という変数をそのまま呼び出していますが，`x`（X軸に対応する値），`y`（Y軸に対応する値），`color`（カラースケールに対応する値）等ももちろん呼び出せます．HTMLタグも有効です．
+
+今回の実装では，予め各データ点の`text`に相当するHTML文を`hover_text`カラムとしてDataFrameに格納しておき，`add_scatter_trace_to_fig()`で`text`として渡しました．
+
+```python: scatter_plot.ipynb
+def make_hover_text(
+        horse_name, horse_age,
+        race_name, turf, dart, date, distance,
+        seconds_total, seconds_3f,
+        speed_total, speed_3f,
+        arrival_order, prize):
+
+    if turf:
+        race_type = '芝'
+    elif dart:
+        race_type = 'ダート'
+    else:
+        race_type = ''
+
+    text = f'''<b>{horse_name}</b> ({horse_age}歳) <br><br>
+    レース：{race_name} ({date}, {race_type}, {distance}m)<br>
+    タイム： {seconds_total} 秒 (上り: {seconds_3f} 秒) <br>
+    平均の速さ: {speed_total:.4} km/h （上り: {speed_3f:.4} km/h） <br>
+    着順：{arrival_order}<br>
+    賞金：{prize}万円
+    '''
+    return text
+
+
+def add_hover_text_to_df(df):
+    """hovertemplate用のhover_textカラムを追加"""
+    df_new = df.copy()
+    df_new['hover_text'] = \
+        df_new[
+            ['horse_name', 'horse_age', 
+             'race_name', 'turf', 'dart', 'date', 'distance', 
+             'seconds_total', 'seconds_3f',
+             'speed_total', 'speed_3f',
+             'arrival_order', 'prize']].apply(
+        lambda x: make_hover_text(*x), axis=1)
+    return df_new
+```
 
 # 考察
 
