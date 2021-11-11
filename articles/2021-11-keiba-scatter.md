@@ -81,7 +81,7 @@ netkeibaからのスクレイピング方法は優れた解説記事が多く存
 
 ## データ管理
 
-データの規模がそこそこあるので，SQLiteを使ってデータを管理しました．レースの概要情報を管理する`race`テーブルと，着順等の結果を管理する`result`テーブルを用意しました．スキーマは下記です．
+データの規模がそこそこあるので，[SQLite](https://www.sqlite.org/index.html)を使ってデータを管理しました．レースの概要情報を管理する`race`テーブルと，着順等の結果を管理する`result`テーブルを用意しました．以下でスキーマを示します．
 
 ### `race`テーブル
 
@@ -108,12 +108,12 @@ netkeibaからのスクレイピング方法は優れた解説記事が多く存
 |カラム|データ型|補足|
 |:----|:----|:----|
 |race_id|TEXT|URLの末尾|
-|arrival_order|INTEGER|着順|
+|arrival_order|INTEGER|着順．存在しない場合は`Null`|
 |frame_no|INTEGER|枠番|
 |horse_no|INTEGER|馬番|
 |horse_name|TEXT|馬名|
 |horse_id|TEXT|馬のID|
-|horse_sex|TEXT|馬の性別|
+|horse_sex|TEXT|馬の性別[^gelding]|
 |horse_age|INTEGER|馬の年齢|
 |horse_weight|REAL|馬体重[kg]|
 |horse_weight_change|REAL|馬体重の増減[kg]|
@@ -129,6 +129,8 @@ netkeibaからのスクレイピング方法は優れた解説記事が多く存
 |prize|REAL|賞金[万円]|
 
 ![](/images/2021-11-keiba-scatter/result_schema.png)
+
+[^gelding]: 「牝」（メス）「牡」（オス）の他に「セ」（騸馬，去勢された牡馬）という概念があり，驚きました．
 
 ## 困ったこと
 
@@ -205,7 +207,7 @@ https://github.com/kakeami/keiba-eda-public/blob/master/notebooks/scatter_prepro
 
 ### `grade`カラムの追加
 
-そもそも競馬のレースには**グレード**と呼ばれる序列が存在しており，上から順に
+競馬のレースには**グレード**と呼ばれる序列が存在しており，上から順に
 
 - G1
 - G2
@@ -470,6 +472,77 @@ pip install plotly
 下記のNotebookをご参照ください．実行環境に関しては本記事のAppendixをご参照ください．
 
 https://github.com/kakeami/keiba-eda-public/blob/master/notebooks/scatter_plot.ipynb
+
+大きく2種類の散布図を作成しました．それぞれについて概説します．
+
+- 全データのプロット
+- 全データのプロットの上に，注目したいデータを上書きプロット
+
+### 全データのプロット
+
+[`scatter_all.html`](https://github.com/kakeami/keiba-eda-public/blob/master/figs/scatters/scatter_all.html)を作成するために，下記の`subplot_scatter_by_distance_class()`を定義しました．
+
+```python: scatter_plot.ipynb
+import plotly.express as px
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
+
+
+def subplots_scatter_by_distance_class(
+        df, color_col='prize', color_title='獲得賞金', asc=True):
+    """距離区分ごとにsubplotでscatterを描画"""
+    fig = make_subplots(
+        rows=2, cols=2, subplot_titles=SUBPLOT_TITLES)
+    x_min, x_max = get_min_and_max_of_col(df, 'speed_total')
+    y_min, y_max = get_min_and_max_of_col(df, 'speed_3f')
+    for i, dc in enumerate(DISTANCE_CLASSES):
+        df_tmp = make_df_for_plot(df, dc, color_col, asc)
+        add_scatter_trace_to_fig(
+            fig, x=df_tmp['speed_total'], y=df_tmp['speed_3f'],
+            color=df_tmp[color_col], text=df_tmp['hover_text'],
+            name=dc, i=i)
+    update_colorbar_of_fig(fig, color_title)
+    update_axis_ranges_of_fig(
+        fig, x_min=x_min, x_max=x_max,
+        y_min=y_min, y_max=y_max)
+    update_axis_titles_of_fig(fig)
+    return fig
+```
+
+Plotlyでsubplotを実現するには様々な方法がありますが，今回は[`make_subplots`](https://plotly.com/python-api-reference/generated/plotly.subplots.make_subplots.html)メソッドを利用しました．引数として`rows`で行数，`cols`で列数，`subplot_titles`で各サブプロット名を定義しました．
+
+上記で作成した`fig`オブジェクトに，`DISTANCE_CLASSES`毎に独自に作成した`add_scatter_trace_to_fig()`で`trace`オブジェクトを追加していきます．
+
+```python: scatter_plot.ipynb
+def add_scatter_trace_to_fig(
+        fig, x, y, color, text, name, i,
+        opacity=1., symbol='circle', size=10,
+        hover=True, linecolor='White'):
+    """figに対しscatterを追加"""
+    fig.add_trace(
+        go.Scatter(
+            x=x,
+            y=y,
+            mode='markers',
+            marker_symbol=symbol,
+            marker_size=size,
+            opacity=opacity,
+            hoverinfo='text' if hover else 'skip',
+            marker={
+                'color': color,
+                'coloraxis':'coloraxis',
+                'line':{
+                    'color': linecolor,
+                    'width': 1},
+            },
+            text=text,
+            hovertemplate='%{text}' if hover else None,
+            name=name,
+        ),
+    i//2+1, i%2+1)
+```
+
+### 注目したいデータを上書きプロット
 
 ## 困ったこと
 
