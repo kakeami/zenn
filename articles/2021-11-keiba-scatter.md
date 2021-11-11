@@ -68,7 +68,7 @@ https://github.com/kakeami/keiba-eda-public
 
 ## 取得元
 
-![](https://storage.googleapis.com/zenn-user-upload/fb0f6e0478ea8193459fd64b.png)
+![](/images/2021-11-keiba-scatter/netkeiba.png)
 *https://db.netkeiba.com/race/199306040411/*
 
 [netkeiba](https://www.netkeiba.com/)で無料で公開されている中央競馬のレース結果を，情報解析を目的としてスクレイピングしました．定番のサイトですので，ネット上にスクリプトが溢れていましたが，細かいチューニングをすることを考えて自分で全部書きました．
@@ -103,7 +103,7 @@ netkeibaからのスクレイピング方法は優れた解説記事が多く存
 |weather|TEXT|天候|
 |start_time|TEXT|発走時刻．`HH:MM`|
 
-![](https://storage.googleapis.com/zenn-user-upload/ef903384ef5c11a3a8e56fb1.png)
+![](/images/2021-11-keiba-scatter/race_schema.png)
 
 ### `result`テーブル
 
@@ -130,7 +130,7 @@ netkeibaからのスクレイピング方法は優れた解説記事が多く存
 |owner_name|TEXT|馬主名|
 |prize|REAL|賞金[万円]|
 
-![](https://storage.googleapis.com/zenn-user-upload/dbdc366b5adeb87294c61658.png)
+![](/images/2021-11-keiba-scatter/result_schema.png)
 
 ## 困ったこと
 
@@ -142,7 +142,7 @@ netkeibaからのスクレイピング方法は優れた解説記事が多く存
 
 [降着・失格](https://www.jra.go.jp/judge/)，[競走中止](https://jra.jp/faq/pop02/2_8.html)，[出走取消](https://jra.jp/faq/pop02/2_7.html)等が原因で着順がつかず，「着順」に数字以外が入ることがある[^shikkaku]ことを知りませんでした．
 
-![](https://storage.googleapis.com/zenn-user-upload/896c850ea4a2753d98460628.png)
+![](/images/2021-11-keiba-scatter/cancel.png)
 *出走取消の例：https://db.netkeiba.com/race/198601010207*
 
 [^shikkaku]: 35年分の中央競馬のデータのうち，何らかの理由で着順に数字以外が入っていたレース数は合計で13143（約11%≒13143/119898）に上りました．結構ありますね，何か処理をミスっているかもしれません．
@@ -157,7 +157,7 @@ netkeibaからのスクレイピング方法は優れた解説記事が多く存
 
 [神ゲー攻略，ウマ娘攻略Wiki](https://kamigame.jp/umamusume/page/110667391372886023.html)から適性情報をスクレイピングしました．
 
-![](https://storage.googleapis.com/zenn-user-upload/5612b1bb1a0934c2ce93eeb1.png)
+![](/images/2021-11-keiba-scatter/kamigame.png)
 *https://kamigame.jp/umamusume/page/110667391372886023.html*
 
 ## 実装
@@ -203,7 +203,7 @@ https://github.com/kakeami/keiba-eda-public/blob/master/notebooks/scatter_prepro
 
 下記のように`race.race_name`からグレード情報とタイトル情報を抜き出し，それぞれ`grade`カラムと`title`カラムとして追加しました．
 
-![](https://storage.googleapis.com/zenn-user-upload/62560e14c55c18a18059349b.png)
+![](/images/2021-11-keiba-scatter/race_name.png)
 
 ### `grade`カラムの追加
 
