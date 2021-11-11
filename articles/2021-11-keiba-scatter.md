@@ -633,7 +633,7 @@ def add_scatter_trace_to_fig(
 
 `hovertemplate`ではグラフオブジェクト内の変数を自由に指定して，HTMLを書くことができます．今回は`text`という変数をそのまま呼び出していますが，`x`（X軸に対応する値），`y`（Y軸に対応する値），`color`（カラースケールに対応する値）等ももちろん呼び出せます．HTMLタグも有効です．
 
-今回の実装では，予め各データ点の`text`に相当するHTML文を`hover_text`カラムとしてDataFrameに格納しておき，`add_scatter_trace_to_fig()`で`text`として渡しました．
+今回の実装では，下記のような`hover_text`カラムをDataFrameに追加しておき，`add_scatter_trace_to_fig()`に`text`として渡しました．
 
 ```python: scatter_plot.ipynb
 def make_hover_text(
