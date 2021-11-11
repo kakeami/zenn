@@ -132,7 +132,7 @@ netkeibaからのスクレイピング方法は優れた解説記事が多く存
 
 [^gelding]: 「牝」（メス）「牡」（オス）の他に「セ」（騸馬，去勢された牡馬）という概念があり，驚きました．
 
-## 困ったこと
+## 苦労したこと
 
 ### `pd.read_html()`で抜けないページがあった
 
@@ -166,7 +166,7 @@ netkeibaからのスクレイピング方法は優れた解説記事が多く存
 
 https://github.com/kakeami/keiba-eda-public/blob/master/notebooks/scatter_scrape.ipynb
 
-## 困ったこと
+## 苦労したこと
 
 ### 新衣装等で複数回登場するウマ娘がいた
 
@@ -389,7 +389,7 @@ def add_distance_class_to_df(df):
     return df_new
 ```
 
-## 困ったこと
+## 苦労したこと
 
 ### グレード`G`が何を表すかわからなかった
 
@@ -509,9 +509,11 @@ def subplots_scatter_by_distance_class(
     return fig
 ```
 
-Plotlyでsubplotを実現するには様々な方法がありますが，今回は[`make_subplots`](https://plotly.com/python-api-reference/generated/plotly.subplots.make_subplots.html)メソッドを利用しました．引数として`rows`で行数，`cols`で列数，`subplot_titles`で各サブプロット名を定義しました．
+Plotlyでsubplotを実現するには様々な方法があります．おそらく一番手軽なのは[Plotly Expressの`facet`オプション](https://plotly.com/python/facet-plots/)を使う方法だと思いますが，細かい制御ができず諦めました．代わりに，今回は[`make_subplots`](https://plotly.com/python-api-reference/generated/plotly.subplots.make_subplots.html)メソッドを利用しました．引数として`rows`で行数，`cols`で列数，`subplot_titles`で各サブプロット名を定義することができます．
 
-上記で作成した`fig`オブジェクトに，`DISTANCE_CLASSES`毎に独自に作成した`add_scatter_trace_to_fig()`で`trace`オブジェクトを追加していきます．
+上記で作成した`fig`オブジェクトに，独自に作成した`add_scatter_trace_to_fig()`を使って，合計4つの`DISTANCE_CLASSES`ごとに`trace`オブジェクトを追加しました[^fig_add_trace]．
+
+[^fig_add_trace]: 最初に`fig`オブジェクトを作って，それに`add_trace`でグラフを追加していくのは，[Plotlyによる作図のよくあるパターンの一つ](https://ai-research-collection.com/add_traceupdate_layout/)です．Plotly Expressはその辺すら簡略化してくれますが．
 
 ```python: scatter_plot.ipynb
 def add_scatter_trace_to_fig(
@@ -542,9 +544,21 @@ def add_scatter_trace_to_fig(
     i//2+1, i%2+1)
 ```
 
+`fig.add_trace()`内では，所望のグラフオブジェクトを指定して`fig`に追加できます．ここでは`go.Scatter()`で散布図のオブジェクトを指定しました．
+
+`marker_symbol`（サンプルの記号），`marker_size`（サンプルの大きさ），`opacity`（サンプルの透明度），`hover`（ホバー時にテキストを表示するかどうか）をオプション引数としたのは，この後で注目したいデータを上書きプロットする際に使うためです．
+
+ホバー時に表示するテキストは`hovertemplate`で制御できます．このあたりは苦労した挙げ句黒魔術を採用したので，詳細は後述します．
+
+ちなみに，最後の`i//2+1, i%2+1`は散布図の行番号と列番号を表します．
+
 ### 注目したいデータを上書きプロット
 
-## 困ったこと
+冒頭のデモでお見せしたトウカイテイオーのように，全体の散布図を背景として示しつつ，注目したいデータを重ねて表示すると素敵です．
+
+## 苦労したこと
+
+### `hovertemplate`にHTMLを直打ちした
 
 # 考察
 
