@@ -476,7 +476,7 @@ https://github.com/kakeami/keiba-eda-public/blob/master/notebooks/scatter_plot.i
 大きく2種類の散布図を作成しました．それぞれについて概説します．
 
 - 全データのプロット
-- 全データのプロットの上に，注目したいデータを上書きプロット
+- 全データの上に，注目したいデータを重ねてプロット
 
 ### 全データのプロット
 
@@ -509,7 +509,9 @@ def subplots_scatter_by_distance_class(
     return fig
 ```
 
-Plotlyでsubplotを実現するには様々な方法があります．おそらく一番手軽なのは[Plotly Expressの`facet`オプション](https://plotly.com/python/facet-plots/)を使う方法だと思いますが，細かい制御ができず諦めました．代わりに，今回は[`make_subplots`](https://plotly.com/python-api-reference/generated/plotly.subplots.make_subplots.html)メソッドを利用しました．引数として`rows`で行数，`cols`で列数，`subplot_titles`で各サブプロット名を定義することができます．
+Plotlyでsubplotを実現するには様々な方法があります．おそらく一番手軽なのは[Plotly Expressの`facet`オプション](https://plotly.com/python/facet-plots/)を使う方法だと思いますが，細かい制御ができず[^facet]諦めました．代わりに，今回は[`make_subplots`](https://plotly.com/python-api-reference/generated/plotly.subplots.make_subplots.html)メソッドを利用しました．引数として`rows`で行数，`cols`で列数，`subplot_titles`で各サブプロット名を定義することができます．
+
+[^facet]: subplotの順序を制御するのが難しかったり，subplotを跨いだcolorbarの表示が崩れたりしました．
 
 上記で作成した`fig`オブジェクトに，独自に作成した`add_scatter_trace_to_fig()`を使って，合計4つの`DISTANCE_CLASSES`ごとに`trace`オブジェクトを追加しました[^fig_add_trace]．
 
@@ -546,17 +548,19 @@ def add_scatter_trace_to_fig(
 
 `fig.add_trace()`内では，所望のグラフオブジェクトを指定して`fig`に追加できます．ここでは`go.Scatter()`で散布図のオブジェクトを指定しました．
 
-`marker_symbol`（サンプルの記号），`marker_size`（サンプルの大きさ），`opacity`（サンプルの透明度），`hover`（ホバー時にテキストを表示するかどうか）をオプション引数としたのは，この後で注目したいデータを上書きプロットする際に使うためです．
+`marker_symbol`（サンプルの記号），`marker_size`（サンプルの大きさ），`opacity`（サンプルの透明度），`hover`（ホバー時にテキストを表示するかどうか）をオプション引数としたのは，次節で使用するためです．
 
 ホバー時に表示するテキストは`hovertemplate`で制御できます．このあたりは苦労した挙げ句黒魔術を採用したので，詳細は後述します．
 
 ちなみに，最後の`i//2+1, i%2+1`は散布図の行番号と列番号を表します．
 
-### 注目したいデータを上書きプロット
+### 注目したいデータを重ねてプロット
 
 冒頭のデモでお見せしたトウカイテイオーのように，全体の散布図を背景として示しつつ，注目したいデータを重ねて表示すると素敵です．
 
 ## 苦労したこと
+
+### 見栄えを整えるために獲得賞金でソートした
 
 ### `hovertemplate`にHTMLを直打ちした
 
@@ -566,7 +570,7 @@ def add_scatter_trace_to_fig(
 
 ## ウマ娘
 
-### プロット対象
+### 対象
 
 ### トウカイテイオー
 
@@ -578,13 +582,15 @@ def add_scatter_trace_to_fig(
 
 ## ウマ娘の比較
 
+### 対象
+
 ### トウカイテイオー vs メジロマックイーン
 
 ### その他
 
 ## レース
 
-### プロット対象
+### 対象
 
 ### 有馬記念
 
@@ -592,9 +598,13 @@ def add_scatter_trace_to_fig(
 
 ## 適性
 
+### 対象
+
 ### 逃げ"A"
 
 ### 追込み"A"
+
+### その他
 
 # 今後の課題
 
