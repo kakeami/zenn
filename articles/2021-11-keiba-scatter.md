@@ -475,10 +475,10 @@ https://github.com/kakeami/keiba-eda-public/blob/master/notebooks/scatter_plot.i
 
 大きく2種類の散布図を作成しました．それぞれについて概説します．
 
-- 全データのプロット
-- 全データの上に，注目したいデータを重ねてプロット
+- 全データの散布図（例：[`scatter_all.html`](https://github.com/kakeami/keiba-eda-public/blob/master/figs/scatters/scatter_all.html)）
+- 全データの上に，注目したいデータを重ねた散布図（例：[`scatter_トウカイテイオー.html`](https://github.com/kakeami/keiba-eda-public/blob/master/figs/scatters/horses/scatter_%E3%83%88%E3%82%A6%E3%82%AB%E3%82%A4%E3%83%86%E3%82%A4%E3%82%AA%E3%83%BC.html)）
 
-### 全データのプロット
+### 全データの散布図（例：[`scatter_all.html`](https://github.com/kakeami/keiba-eda-public/blob/master/figs/scatters/scatter_all.html)）
 
 [`scatter_all.html`](https://github.com/kakeami/keiba-eda-public/blob/master/figs/scatters/scatter_all.html)を作成するために，下記の`subplot_scatter_by_distance_class()`を定義しました．
 
@@ -509,7 +509,7 @@ def subplots_scatter_by_distance_class(
     return fig
 ```
 
-Plotlyでsubplotを実現するには様々な方法があります．おそらく一番手軽なのは[Plotly Expressの`facet`オプション](https://plotly.com/python/facet-plots/)を使う方法だと思いますが，細かい制御ができず[^facet]諦めました．代わりに，今回は[`make_subplots`](https://plotly.com/python-api-reference/generated/plotly.subplots.make_subplots.html)メソッドを利用しました．引数として`rows`で行数，`cols`で列数，`subplot_titles`で各サブプロット名を定義することができます．
+Plotlyには，subplotを実現する方法がいくつかあります．おそらく一番手軽なのは[Plotly Expressの`facet`オプション](https://plotly.com/python/facet-plots/)を使う方法だと思いますが，細かい制御ができず[^facet]諦めました．代わりに，今回は[`make_subplots`](https://plotly.com/python-api-reference/generated/plotly.subplots.make_subplots.html)メソッドを利用しました．引数として`rows`で行数，`cols`で列数，`subplot_titles`で各サブプロット名を定義することができます．
 
 [^facet]: subplotの順序を制御するのが難しかったり，subplotを跨いだcolorbarの表示が崩れたりしました．
 
@@ -548,15 +548,62 @@ def add_scatter_trace_to_fig(
 
 `fig.add_trace()`内では，所望のグラフオブジェクトを指定して`fig`に追加できます．ここでは`go.Scatter()`で散布図のオブジェクトを指定しました．
 
-`marker_symbol`（サンプルの記号），`marker_size`（サンプルの大きさ），`opacity`（サンプルの透明度），`hover`（ホバー時にテキストを表示するかどうか）をオプション引数としたのは，次節で使用するためです．
+`marker_symbol`（マーカーの形），`marker_size`（マーカーの大きさ），`opacity`（マーカーの透明度），`hover`（ホバー時にテキスト等を表示するかどうか）をオプション引数としたのは，次節で使用するためです．
 
 ホバー時に表示するテキストは`hovertemplate`で制御できます．このあたりは苦労した挙げ句黒魔術を採用したので，詳細は後述します．
 
 ちなみに，最後の`i//2+1, i%2+1`は散布図の行番号と列番号を表します．
 
-### 注目したいデータを重ねてプロット
+### 注目したいデータを重ねた散布図（例：[`scatter_トウカイテイオー.html`](https://github.com/kakeami/keiba-eda-public/blob/master/figs/scatters/horses/scatter_%E3%83%88%E3%82%A6%E3%82%AB%E3%82%A4%E3%83%86%E3%82%A4%E3%82%AA%E3%83%BC.html)）
 
-冒頭のデモでお見せしたトウカイテイオーのように，全体の散布図を背景として示しつつ，注目したいデータを重ねて表示すると素敵です．
+冒頭のデモでお見せしたトウカイテイオーのように，全体の散布図を背景として示しつつ，注目したいデータを重ねて描画した散布図を作成しました．
+
+- [`figs/scatters/horses/`](https://github.com/kakeami/keiba-eda-public/tree/master/figs/scatters/horses)：各競走馬に注目した散布図
+- [`figs/scatters/indices/`](https://github.com/kakeami/keiba-eda-public/tree/master/figs/scatters/indices)：各適性がAの競走馬に注目した散布図
+- [`figs/scatters/title/`](https://github.com/kakeami/keiba-eda-public/tree/master/figs/scatters/titles)：各タイトルで賞金を獲得した競走馬に注目した散布図
+
+これらは全て，前記の`subplots_scatter_by_distance_class()`を少しだけ変更した`subplots_two_scatters_by_distance_class()`により作図しました．
+
+```python: scatter_plot.ipynb
+def subplots_two_scatters_by_distance_class(
+        df, df_star, color_col='prize', color_title='獲得賞金', asc=True):
+    """距離区分ごとにsubplotでscatterを描画
+    ただしdf_starの結果は☆でプロット"""
+    fig = make_subplots(
+        rows=2, cols=2, subplot_titles=SUBPLOT_TITLES)
+    x_min, x_max = get_min_and_max_of_col(df, 'speed_total')
+    y_min, y_max = get_min_and_max_of_col(df, 'speed_3f')
+    for i, dc in enumerate(DISTANCE_CLASSES):
+        df_tmp = make_df_for_plot(df, dc, color_col, asc)
+        df_star_tmp = make_df_for_plot(df_star, dc, color_col, asc)
+        # 背景表示用
+        add_scatter_trace_to_fig(
+            fig, x=df_tmp['speed_total'], y=df_tmp['speed_3f'],
+            color=df_tmp[color_col], text=df_tmp['hover_text'],
+            name=dc, i=i, opacity=0.3, hover=False)
+        # 注目したいデータ用
+        add_scatter_trace_to_fig(
+            fig, x=df_star_tmp['speed_total'], y=df_star_tmp['speed_3f'],
+            color=df_star_tmp[color_col], text=df_star_tmp['hover_text'],
+            name=dc, i=i, symbol='star', size=25)
+    update_colorbar_of_fig(fig, color_title)
+    update_axis_ranges_of_fig(
+        fig, x_min=x_min, x_max=x_max,
+        y_min=y_min, y_max=y_max)
+    update_axis_titles_of_fig(fig)
+    return fig
+```
+
+主な違いは下記です：
+
+- `df`に加え，重ねて表示したいデータを格納した`df_star`を渡す
+- `DISTANCE_CLASSES`毎に**2回ずつ**`add_scatter_trace_to_fig()`を呼び出す
+    1. `df`を半透明（`opacity=0.3`）で，ホバー時に反応しないように（`hover=False`）追加
+    2. `df_star`を星型マーカー（`symbol='star'`）で，大きめに（`size=25`）で追加
+
+この`df_star`を競走馬ごと，タイトルごと，適性毎に作成することで，様々なパターンの散布図を作成しました．
+
+ちなみに[`figs/scatters/vs/`](https://github.com/kakeami/keiba-eda-public/tree/master/figs/scatters/vs)では**2頭の競走馬**に注目した散布図（一頭目を星型マーカー，二頭目を三角型マーカーで表示）を作成していますが，基本的な考え方は同じです．
 
 ## 苦労したこと
 
