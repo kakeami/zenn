@@ -6,8 +6,6 @@ topics: ["python", "pandas", "競馬", "plotly", "可視化"]
 published: false
 ---
 
-(CLI利用版)
-
 - アニメ[ウマ娘プリティーダービー](https://anime-umamusume.jp/)にハマった
 - 原作（実際の競馬）に興味が出たので，35年分の重賞[^graded]のレース結果を[netkeiba](https://www.netkeiba.com/)から取得した
 - [Plotly](https://plotly.com/python/)でインタラクティブな散布図を描き，馬・タイトル・適性毎に分布を見てニヤニヤした
