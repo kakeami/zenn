@@ -497,13 +497,14 @@ def subplots_scatter_by_distance_class(
     y_min, y_max = get_min_and_max_of_col(df, 'speed_3f')
     for i, dc in enumerate(DISTANCE_CLASSES):
         df_tmp = make_df_for_plot(df, dc, color_col, asc)
+        add_line_y_equal_x_to_fig(fig, i)
         add_scatter_trace_to_fig(
             fig, x=df_tmp['speed_total'], y=df_tmp['speed_3f'],
             color=df_tmp[color_col], text=df_tmp['hover_text'],
             name=dc, i=i)
     update_colorbar_of_fig(fig, color_title)
     update_axis_ranges_of_fig(
-        fig, x_min=x_min, x_max=x_max,
+        fig, x_min=x_min, x_max=x_max, 
         y_min=y_min, y_max=y_max)
     update_axis_titles_of_fig(fig)
     return fig
@@ -576,6 +577,7 @@ def subplots_two_scatters_by_distance_class(
     for i, dc in enumerate(DISTANCE_CLASSES):
         df_tmp = make_df_for_plot(df, dc, color_col, asc)
         df_star_tmp = make_df_for_plot(df_star, dc, color_col, asc)
+        add_line_y_equal_x_to_fig(fig, i)
         # 背景表示用
         add_scatter_trace_to_fig(
             fig, x=df_tmp['speed_total'], y=df_tmp['speed_3f'],
@@ -588,7 +590,7 @@ def subplots_two_scatters_by_distance_class(
             name=dc, i=i, symbol='star', size=25)
     update_colorbar_of_fig(fig, color_title)
     update_axis_ranges_of_fig(
-        fig, x_min=x_min, x_max=x_max,
+        fig, x_min=x_min, x_max=x_max, 
         y_min=y_min, y_max=y_max)
     update_axis_titles_of_fig(fig)
     return fig
