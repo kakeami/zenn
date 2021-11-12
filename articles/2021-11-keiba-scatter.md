@@ -613,7 +613,7 @@ def subplots_two_scatters_by_distance_class(
 
 ### `hovertemplate`にHTMLを直打ちした
 
-Plotlyでは，マーカーにカーソルを合わせたときに表示する情報を制御できます．Plotly Expressは[`hover_data`, `hover_name`等のオプションで手軽に指定できる](https://plotly.com/python/hover-text-and-formatting/#customizing-hover-text-with-plotly-express)機能を搭載しているのですが，今回はPlotly Expressを使わなかったため，より低レベルなインターフェースである[`hovertemplate`](https://plotly.com/python/hover-text-and-formatting/#customizing-hover-text-with-a-hovertemplate)で細かく指定しました．
+Plotlyでは，マーカー上にカーソルをホバーしたときに表示する情報を制御できます．Plotly Expressは[`hover_data`, `hover_name`等のオプションで手軽に指定できる](https://plotly.com/python/hover-text-and-formatting/#customizing-hover-text-with-plotly-express)機能を提供しているのですが，今回はPlotly Expressを採用しなかったため，より低レベルなインターフェースである[`hovertemplate`](https://plotly.com/python/hover-text-and-formatting/#customizing-hover-text-with-a-hovertemplate)を使いました．
 
 ```python: scatter_plot.ipynb
 def add_scatter_trace_to_fig(
@@ -631,7 +631,7 @@ def add_scatter_trace_to_fig(
     i//2+1, i%2+1)
 ```
 
-`hovertemplate`ではグラフオブジェクト内の変数を自由に指定して，HTMLを書くことができます．今回は`text`という変数をそのまま呼び出していますが，`x`（X軸に対応する値），`y`（Y軸に対応する値），`color`（カラースケールに対応する値）等ももちろん呼び出せます．HTMLタグも有効です．
+`hovertemplate`ではグラフオブジェクト内の変数を自由に展開できます．今回は`text`をそのまま展開していますが，`x`（X軸に対応する値），`y`（Y軸に対応する値），`color`（カラースケールに対応する値）等ももちろん呼び出せます．HTMLタグも有効です．
 
 今回の実装では，下記のような`hover_text`カラムをDataFrameに追加しておき，`add_scatter_trace_to_fig()`に`text`として渡しました．
 
