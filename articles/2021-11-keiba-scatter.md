@@ -550,7 +550,7 @@ def add_scatter_trace_to_fig(
 
 `marker_symbol`（マーカーの形），`marker_size`（マーカーの大きさ），`opacity`（マーカーの透明度），`hover`（ホバー時にテキスト等を表示するかどうか）をオプション引数としたのは，次節で使用するためです．
 
-ホバー時に表示するテキストは`hovertemplate`で制御できます．このあたりは苦労した挙げ句黒魔術を採用したので，詳細は後述します．
+ホバー時に表示するテキストは`hovertemplate`で制御できます．詳細は後述します．
 
 ちなみに，最後の`i//2+1, i%2+1`は散布図の行番号と列番号を表します．
 
@@ -673,6 +673,26 @@ def add_hover_text_to_df(df):
         lambda x: make_hover_text(*x), axis=1)
     return df_new
 ```
+
+### サイズを圧縮するために不要なサンプルを削除した
+
+何も考えずに出力すると，ファイルサイズは31MB程度になってしまいました．少しでもサイズを圧縮するため，マーカーの位置が重複する場合は最も獲得賞金が大きいもの（獲得賞金が同じ場合は開催日が新しいもの）以外を削除しました．
+
+```python: scatter_plot.ipynb
+def drop_dup_for_plot(
+        df, cols_dup=['speed_total', 'speed_3f'],
+        cols_sort=['prize', 'date'], asc=False):
+    """cols_dupが重複したデータを削除
+    その際， cols_sortでasc順にソートしたあとで重複を削除されることに注意．
+    デフォルト設定ではprizeおよびyearが大きいものが残る形になる．
+    """
+    df_new = df.copy()
+    df_new = df_new.sort_values(cols_sort, ascending=asc)
+    df_new = df_new.drop_duplicates(subset=cols_dup)
+    return df_new
+```
+
+結果的にファイルサイズは15MB程度まで小さくなりました．これでも十分巨大ですが…．
 
 # 考察
 
