@@ -6,10 +6,11 @@ topics: ["python", "pandas", "競馬", "plotly", "可視化"]
 published: false
 ---
 
-- アニメ[ウマ娘プリティーダービー](https://anime-umamusume.jp/)にハマった
-- 原作（実際の競馬）に興味が出たので，35年分の重賞[^graded]のレース結果を[netkeiba](https://www.netkeiba.com/)から取得した
+- [ウマ娘](https://anime-umamusume.jp/)にハマったので，35年分の重賞[^graded]のレース結果を[netkeiba](https://www.netkeiba.com/)から取得した
 - [Plotly](https://plotly.com/python/)でインタラクティブな散布図を描き，馬・タイトル・適性毎に分布を見てニヤニヤした
-- （記事が長すぎるので，YouTubeの字幕をONにしてデモだけでも御覧いただければ幸甚です ）
+- 以下について特にコメントお待ちしております．競馬初心者で恐縮です：
+    - [netkeibaにおいて，レース名に`(G)`を冠するレースの条件がわからない](https://zenn.dev/kakeami/articles/2021-11-keiba-scatter#%E3%82%B0%E3%83%AC%E3%83%BC%E3%83%89g%E3%81%8C%E4%BD%95%E3%82%92%E8%A1%A8%E3%81%99%E3%81%8B%E3%82%8F%E3%81%8B%E3%82%89%E3%81%AA%E3%81%8B%E3%81%A3%E3%81%9F)
+    - 1993年まで，一部のレースの上りタイムを計測した距離が異なるように見える
 
 https://youtu.be/fBI9aKwAhfM
 
@@ -698,47 +699,87 @@ def drop_dup_for_plot(
 
 [^size]: タイムの精度が小数点以下1桁で，走行距離のバリエーションも多くないので，もっと圧縮できると思っていましたが…．
 
-# 考察
+# 結果
+
+作図結果を眺めてみます．全て以下のリポジトリに格納してありますので，適宜ダウンロードして御覧ください．
+
+https://github.com/kakeami/keiba-eda-public/tree/master/figs/scatters
 
 ## 全体像
 
-## ウマ娘
+まず，全てのサンプルを描画した[`scatter_all.html`](https://github.com/kakeami/keiba-eda-public/blob/master/figs/scatters/scatter_all.html)から簡単に解説します．
 
-### 対象
+![](/images/2021-11-keiba-scatter/scatter_all_line.png)
 
-### トウカイテイオー
+横軸・縦軸・カラースケールについては前述した通りです．これまで述べていませんでしたが，灰色の破線で直線$y=x$をプロットしました．ざっくり言うと，**この破線より上側に位置する競走馬は上り3ハロンが他の区間より速く**，**下側に位置するサンプルはその逆**を表します．競走馬の脚質適性などと比較すると面白そうですね．
 
-### ツインターボ
+明るい黄色のマーカーのほとんどが明るい破線より上側に存在することがわかります．やはり日本競馬においては，上りをいかに速く走るかが重要なテーマのようです．
 
-### その他
+また，当たり前ですが距離が長くなるほどレース全体の平均の速さが落ち込み，全体として横に潰れた分布になることがわかります．短距離レースがほぼ$y=x$上に乗って伸びているのも面白いですね．最初から最後まで全力疾走している様子が伺えます．
 
-その他のデータは下記にアップロードしてあります．
+ところで…，
 
-## ウマ娘の比較
+![](/images/2021-11-keiba-scatter/scatter_all_cluster.png)
 
-### 対象
+**これは何でしょう？**[^bug]次章で考察します．
 
-### トウカイテイオー vs メジロマックイーン
+[^bug]: 悲しいですが，こういうときはだいたいバグです
 
-### その他
+## 競走馬
 
-## レース
+競走馬ごとの戦績をもとに，散布図を作成しました．
 
-### 対象
+https://github.com/kakeami/keiba-eda-public/tree/master/figs/scatters/horses
 
-### 有馬記念
+対象としたのは，
+- [神ゲー攻略，ウマ娘攻略Wiki](https://kamigame.jp/umamusume/page/110667391372886023.html)に掲載されている（未実装含む）ウマ娘のモデル[^um_not_included]
+- 35年間の合計獲得金額の上位50位
 
-### その他
+[^um_not_included]: ただし，競走馬のデータを取得できなかったウマ娘が4人います．まずシンボリルドルフ，マルゼンスキー，ミスターシービーについては，活躍した時期が今回の調査期間と重ならなかったため，データを取得できませんでした．そしてハルウララについては，中央競馬での出走記録がなかったため，データを取得できませんでした．
+
+の和集合です．例えば[ゴールドシップ](https://github.com/kakeami/keiba-eda-public/blob/master/figs/scatters/horses/scatter_%E3%82%B4%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B7%E3%83%83%E3%83%97.html)は
+
+![](/images/2021-11-keiba-scatter/goldship.png)
+*ゴールドシップの戦績*
+
+全ての点が$y=x$より上側に位置し，ラストスパートが非常に速かったことがわかります．明るいマーカーも多く，賞金を荒稼ぎしている様子も伺えます．
+
+一方で[ツインターボ](https://github.com/kakeami/keiba-eda-public/blob/master/figs/scatters/horses/scatter_%E3%83%84%E3%82%A4%E3%83%B3%E3%82%BF%E3%83%BC%E3%83%9C.html)は，
+
+![](/images/2021-11-keiba-scatter/twinturbo.png)
+*ツインターボの戦績*
+
+全ての点が$y=x$より下側に位置し，逃げ馬らしい走り方をしていたことがわかります．
+
+他の競走馬についても眺めて頂けると幸いです．私はアーモンドアイが凄すぎて驚いてしまいました．
+
+## ウマ娘同士の比較
+
+私にはどうしても実現したい夢の対決がいくつかありました．今回は私の独断と偏見で，下記の6ペアについて比較した散布図を作成しました．
+
+```python: scatter_plot.ipynb
+ums_vs = [
+    ['トウカイテイオー', 'メジロマックイーン'],
+    ['スペシャルウィーク', 'サイレンススズカ'],
+    ['ウオッカ', 'ダイワスカーレット'],
+    ['キタサンブラック', 'サトノダイヤモンド'],
+    ['ライスシャワー', 'メジロマックイーン'],
+    ['トウカイテイオー', 'ツインターボ'],
+]
+```
+
+https://github.com/kakeami/keiba-eda-public/tree/master/figs/scatters/vs
+
+とりあえず[トウカイテイオーとメジロマックイーンの結果](https://github.com/kakeami/keiba-eda-public/blob/master/figs/scatters/vs/scatter_%E3%83%88%E3%82%A6%E3%82%AB%E3%82%A4%E3%83%86%E3%82%A4%E3%82%AA%E3%83%BC_%E3%83%A1%E3%82%B8%E3%83%AD%E3%83%9E%E3%83%83%E3%82%AF%E3%82%A4%E3%83%BC%E3%83%B3.html)を貼っておきます．
+
+![](/images/2021-11-keiba-scatter/umapyoi.png)
+*トウカイテイオー（☆）とメジロマックイーン（△）*
+
+## タイトル
 
 ## 適性
 
-### 対象
-
-### 逃げ"A"
-
-### 追込み"A"
-
-### その他
+# 考察
 
 # 今後の課題
 
