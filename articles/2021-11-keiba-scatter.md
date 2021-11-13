@@ -3,12 +3,13 @@ title: "ウマ娘にハマったので35年分のレース結果をPlotlyで散�
 emoji: "🏇"
 type: "tech"
 topics: ["python", "pandas", "競馬", "plotly", "可視化"]
-published: false
+published: true
 ---
 
 - アニメ[ウマ娘](https://anime-umamusume.jp/)にハマったので，35年分の重賞[^graded]のレース結果を[netkeiba](https://www.netkeiba.com/)から取得した
 - [Plotly](https://plotly.com/python/)でインタラクティブな散布図を描き，馬・タイトル・適性毎に分布を見てニヤニヤした
-- 散布図に謎のクラスターが生じたが，1993年頃までの上りタイムの定義がわからず，原因解明に至らなかった（コメントお待ちしております）
+- 散布図に謎のクラスターが生じたが，1993年頃までの上りタイムの定義がわからず，原因解明に至らなかった
+- （長い記事なので，YouTubeの字幕をONにしてデモだけでもご覧頂けますと幸甚です）
 
 https://youtu.be/fBI9aKwAhfM
 
@@ -731,11 +732,11 @@ https://github.com/kakeami/keiba-eda-public/tree/master/figs/scatters
 
 https://github.com/kakeami/keiba-eda-public/blob/master/notebooks/scatter_discussion.ipynb
 
-上記のNotebookで簡単に分析したところ，このクラスターに属するレース[^identify]は全て1993年頃までに開催されたものであることがわかりました．
+上記のNotebookで簡単に分析したところ，このクラスターに属する351レース[^identify]は全て1993年頃までに開催されたものであることがわかりました．上りの平均の速さが3/4程度になっていることから，**上り3ハロンではなく4ハロンで計測されたタイム**なのではないかと想像しています[^yushun]が，裏が取れませんでした．以下に該当するレース一覧を格納しておりますので，ピンと来た方はコメント頂けますと幸いです．
 
-上りの平均の速さが3/4程度になっていることから，**上り3ハロンではなく4ハロンで計測されたタイム**なのではないかと想像しています[^yushun]．私なりに調査したのですが，裏が取れませんでした．コメントお待ちしております．
+https://github.com/kakeami/keiba-eda-public/blob/master/figs/scatters/race_slow_3f.csv
 
-[^identify]: 厳密にクラスタリングしたわけではなく，「レースで最も上りタイムが速かった競走馬の平均速度が50[km/h]未満」という雑な条件で抽出しました．結果を見る限り，そこまで悪くない分離方法だと思います．
+[^identify]: 厳密にクラスタリングしたわけではなく，「最も上りタイムが速かった競走馬の平均の速さが50[km/h]未満のレース」という雑な条件で抽出しました．結果を見る限り，そこまで悪くない分離方法だと思います．
 
 [^yushun]: 例えば[第56回](https://db.netkeiba.com/race/198905030409/)までの東京優駿と，[第57回](https://db.netkeiba.com/race/199005030409/)以降の東京優駿では上りタイムの水準が明らかに異なっています．
 
@@ -823,7 +824,7 @@ https://github.com/kakeami/keiba-eda-public/tree/master/figs/scatters/indices
 
 ## 統計的仮説検定
 
-上記の課題とも絡みますが，競馬界で囁かれている定説について，数理統計的な観点での裏付けに挑戦したいです．
+競馬界で囁かれている定説について，数理統計的な観点での裏付けに挑戦したいです．
 
 - 日本競馬の高速化
 - 先行脚質のある馬は外枠で不利
