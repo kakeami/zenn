@@ -717,7 +717,7 @@ https://github.com/kakeami/keiba-eda-public/tree/master/figs/scatters
 
 マーカーの色は**獲得賞金**を表します．獲得賞金が高いほど明るい黄色になります．どのような距離適性・脚質適性の競走馬が稼いでいるか直感的に眺めることが狙いです．
 
-補助線として，灰色の破線で直線$y=x$をプロットしました．ざっくり言うと，**この破線より上側に位置する競走馬は上り3ハロンが他の区間より速く**，**下側に位置する競走馬はその逆**を表します．競走馬の脚質適性などと比較すると面白そうですね．
+補助線として，灰色の破線で$y=x$をプロットしました．ざっくり言うと，**この破線より上側に位置する競走馬は上り3ハロンが他の区間より速く**，**下側に位置する競走馬はその逆**を表します．脚質適性などと比較すると面白そうですね．
 
 明るい黄色のマーカーのほとんどが明るい破線より上側に存在することがわかります．やはり日本競馬においては，上りをいかに速く走るかが重要なテーマのようです．
 
@@ -786,22 +786,34 @@ ums_vs = [
 
 https://github.com/kakeami/keiba-eda-public/tree/master/figs/scatters/vs
 
-とりあえず[トウカイテイオーとメジロマックイーンの結果](https://github.com/kakeami/keiba-eda-public/blob/master/figs/scatters/vs/scatter_%E3%83%88%E3%82%A6%E3%82%AB%E3%82%A4%E3%83%86%E3%82%A4%E3%82%AA%E3%83%BC_%E3%83%A1%E3%82%B8%E3%83%AD%E3%83%9E%E3%83%83%E3%82%AF%E3%82%A4%E3%83%BC%E3%83%B3.html)を貼っておきます．
+例えば，[トウカイテイオーとメジロマックイーンの散布図](https://github.com/kakeami/keiba-eda-public/blob/master/figs/scatters/vs/scatter_%E3%83%88%E3%82%A6%E3%82%AB%E3%82%A4%E3%83%86%E3%82%A4%E3%82%AA%E3%83%BC_%E3%83%A1%E3%82%B8%E3%83%AD%E3%83%9E%E3%83%83%E3%82%AF%E3%82%A4%E3%83%BC%E3%83%B3.html)は下図のようになります．見やすいよう，中距離と長距離の散布図を拡大していることにご注意ください．
 
 ![](/images/2021-11-keiba-scatter/umapyoi.png)
 *トウカイテイオー（☆）とメジロマックイーン（△）*
 
 ## タイトル
 
-各タイトル毎に，入賞した競走馬の散布図を作成しました．
+タイトルごとに，入賞した競走馬の散布図を作成しました．
 
 https://github.com/kakeami/keiba-eda-public/tree/master/figs/scatters/titles
 
 ファイル名は`scatter_{グレード}_{タイトル名}.html`というフォーマットに従っています．35年間でグレードが変動したタイトルについては，全てのグレードを降順に記載しました（例：`scatter_G1_G2_G3_スプリンターズS.html`）．
 
+例えば，[有馬記念の散布図](https://github.com/kakeami/keiba-eda-public/blob/master/figs/scatters/titles/scatter_G1_%E6%9C%89%E9%A6%AC%E8%A8%98%E5%BF%B5.html)は下図のようになります．見やすいよう，長距離の散布図のみ拡大していることにご注意ください．
+
 ![](/images/2021-11-keiba-scatter/arima.png)
+*有馬記念の歴代入賞馬*
 
 ## 適性
+
+適性ごとに，それぞれ評価がAの競走馬の散布図を作成しました．
+
+https://github.com/kakeami/keiba-eda-public/tree/master/figs/scatters/indices
+
+例えば，[追い込み適性がAの競走馬の散布図](https://github.com/kakeami/keiba-eda-public/blob/master/figs/scatters/indices/scatter_%E8%BF%BD%E3%81%84%E8%BE%BC%E3%81%BF%E9%81%A9%E6%80%A7_A.html)は下図です．殆どのマーカーが補助線$y=x$より上部に位置しており，ラストスパートが速かったことが伺えます．
+
+![](/images/2021-11-keiba-scatter/oikomi.png)
+*追い込み適性Aの競走馬*
 
 # 今後の課題
 
