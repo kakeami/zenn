@@ -297,7 +297,7 @@ def get_title(race_name):
 
 でした．以下それぞれについて解説します．
 
-[^agari]: 読みは「あがり」です．ざっと調べたところ「上がり」という振り仮名が正しそうでしたが，netkeibaの列名「上り」を尊重して本記事では「上り」を採用しています（途中で気づいたけど書き直す気力がなかった）．
+[^agari]: 読みは「あがり」です．ざっと調べたところ「上がり」という送り仮名が正しそうでしたが，netkeibaの列名「上り」を尊重して本記事では「上り」を採用しています（途中で気づいたけど書き直す気力がなかった）．
 
 ### `race`テーブルと`result`テーブルの結合
 
@@ -798,7 +798,9 @@ https://github.com/kakeami/keiba-eda-public/tree/master/figs/scatters/vs
 
 https://github.com/kakeami/keiba-eda-public/tree/master/figs/scatters/titles
 
-ファイル名は`scatter_{グレード}_{タイトル名}.html`というフォーマットに従っています．35年間でグレードが変動したタイトルについては，全てのグレードを降順に記載しました（例：`scatter_G1_G2_G3_スプリンターズS.html`）．
+ファイル名は`scatter_{グレード}_{タイトル名}.html`というフォーマットに従っています．35年間でグレードが変動したタイトルについては，全てのグレードを降順[^ascending]に記載しました（例：`scatter_G1_G2_G3_スプリンターズS.html`）．
+
+[^ascending]: アルファベット順における降順ではなく，グレードの格付け`[G1, G2, G3, G, L]`における降順．
 
 例えば，[有馬記念の散布図](https://github.com/kakeami/keiba-eda-public/blob/master/figs/scatters/titles/scatter_G1_%E6%9C%89%E9%A6%AC%E8%A8%98%E5%BF%B5.html)は下図のようになります．見やすいよう，長距離の散布図のみ拡大していることにご注意ください．
 
