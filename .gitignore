@@ -1,9 +1,32 @@
+# macOS
 .DS_Store
-*.pptx
+
+# Windows
+Thumbs.db
+
+# Editor
 *.sw*
+.idea/
+.vscode/
+*.sublime-*
 
+# Node.js
 node_modules/
-private/
+*.log
+npm-debug.log*
 
-package.json
-package-lock.json
+# Environment
+.env
+.env.local
+.env*.local
+
+# Temporary files
+*.bak
+*.tmp
+
+# Claude Code
+.claude/
+
+# Project specific
+*.pptx
+private/
