@@ -16,6 +16,7 @@ published: false
 ![](/images/2026-01-vizbook/site.png)
 *「技術書を出版するまでの1161時間50分38秒」*
 
+https://kakeami.github.io/road-to-vizbook/
 
 ## 背景
 
@@ -25,6 +26,8 @@ published: false
 
 - **上巻**：[データを見る力・見せる技術 分析・可視化のための基本×速習ハンズオン](https://gihyo.jp/book/2026/978-4-297-15271-0)
 - **下巻**：[データを問う力・伝える技術 探索的データ分析・グラフ化の定石×即戦力ハンズオン](https://gihyo.jp/book/2026/978-4-297-15273-4)
+
+https://gihyo.jp/book/2026/978-4-297-15271-0
 
 ### なぜ執筆時間を可視化するか
 
