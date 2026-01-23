@@ -18,6 +18,8 @@ published: false
 
 https://kakeami.github.io/road-to-vizbook/
 
+https://kakeami.github.io/vizbook-jupyter/
+
 ## 背景
 
 ### 「データ可視化技術入門」とは
