@@ -12,6 +12,8 @@ Thumbs.db
 
 # Node.js
 node_modules/
+package/
+package-lock.json
 *.log
 npm-debug.log*
 
