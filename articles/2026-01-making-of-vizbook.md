@@ -16,6 +16,7 @@ published: false
 ![](/images/2026-01-vizbook/site.png)
 *「技術書を出版するまでの1161時間50分38秒」*
 
+
 https://kakeami.github.io/road-to-vizbook/
 
 ## 背景
