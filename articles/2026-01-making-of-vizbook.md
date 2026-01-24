@@ -95,21 +95,14 @@ https://gihyo.jp/book/2026/978-4-297-15273-4
 
 ### データの可視化
 
-[Plotly](https://plotly.com/python/)を使用しています。（質的変数の）カラーパレットには[Okabe-Itoパレット](https://jfly.uni-koeln.de/color/)を採用しました。これは色覚の多様性に配慮した配色で、本書でも推奨しているパレットです。
+[Plotly](https://plotly.com/python/)を使用しました。Jupyter BookにHTMLウィジェットとして埋め込めるため、静的サイトでもズームやホバーによる詳細表示が可能です。本書のサポートサイトと技術スタックを統一できる点も採用理由の一つです。
 
-![](/images/2026-01-vizbook/oi.png)
-*Okabe-Itoカラー*
-
-
-:::message
-TODO
-ここ、強調するべきはカラーではない気がする
-適当に動画を編集してyoutubeで公開し、MP3あたりを貼り付けたい
-:::
+![](/images/2026-01-vizbook/line.gif)
+*Plotlyならインタラクティブに可視化結果を操作可能*
 
 ### サイトの構築
 
-[Jupyter Book](https://jupyterbook.org/)を使用しています。前作ではMkDocsを使用していましたが、今回は以下の理由でJupyter Bookを選びました：
+[Jupyter Book](https://jupyterbook.org/)を採用しました。前作ではMkDocsを使用していましたが、今回は以下の理由でJupyter Bookを選びました：
 
 - Jupyter Notebookとの親和性が高いため
 - コードと出力を一緒に管理できるため
@@ -186,8 +179,6 @@ TODO
 :::
 
 ![](/images/2026-01-vizbook/hist.png)
-
-![](/images/2026-01-vizbook/pie.png)
 
 作業1回あたりの継続時間を分析すると：
 
