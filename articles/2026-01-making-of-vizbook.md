@@ -17,8 +17,6 @@ published: false
 *「技術書を出版するまでの1161時間50分38秒」*
 
 
-https://kakeami.github.io/road-to-vizbook/
-
 ## 背景
 
 ### 「データ可視化技術入門」とは
