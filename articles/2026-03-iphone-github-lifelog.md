@@ -16,7 +16,7 @@ published: false
 
 日々の気分や食事、運動などの記録を続けたいと思ったことはないでしょうか。
 
-ライフログの手段はすでにいくつか存在します。[iPhoneショートカット × Notion](https://sizu.me/watayu0828/posts/4iwti6d8ez3r)の組み合わせは手軽ですが、データはNotionのサーバーに依存し、変更履歴の保持も有料プラン限定です。[FxLifeSheet](https://github.com/KrauseFx/FxLifeSheet)のようにTelegramボット + PostgreSQLで本格的なQuantified Selfを実践する方法もありますが、サーバー運用が必要になります。プレーンテキストで記録する文化としては[Nomie](https://nomie.app/)のようなオープンソースのライフトラッカーもありましたが、2023年2月にサービスを終了しています。また、iPhoneとGitHub Actionsを組み合わせる事例として、[Apple Shortcutからworkflow_dispatchを叩く方法](https://island94.org/2024/01/trigger-github-actions-workflows-from-apple-shortcuts)や、[iPhoneショートカットからGitHub Issueにコメントを投稿し、GitHub Actionsでマークダウンファイルに変換する方法](https://qiita.com/TaigoKuriyama/items/32f3ef128db2b9344e6a)が紹介されています。
+ライフログの手段はすでにいくつか存在します。[iPhoneショートカット × Notion](https://sizu.me/watayu0828/posts/4iwti6d8ez3r)の組み合わせは手軽ですが、データはNotionのサーバーに依存し、無料プランでは変更履歴の保持が7日間に制限されます。[FxLifeSheet](https://github.com/KrauseFx/FxLifeSheet)のようにTelegramボット + PostgreSQLで本格的なQuantified Selfを実践する方法もありますが、サーバー運用が必要になります。プレーンテキストで記録する文化としては[Nomie](https://nomie.app/)のようなオープンソースのライフトラッカーもありましたが、2023年2月にサービスを終了しています。また、iPhoneとGitHub Actionsを組み合わせる事例として、[Apple Shortcutからworkflow_dispatchを叩く方法](https://island94.org/2024/01/trigger-github-actions-workflows-from-apple-shortcuts)や、[iPhoneショートカットからGitHub Issueにコメントを投稿し、GitHub Actionsでマークダウンファイルに変換する方法](https://qiita.com/TaigoKuriyama/items/32f3ef128db2b9344e6a)が紹介されています。
 
 本記事で紹介するアプローチの特徴は、**構造化データ（JSONL）をGitリポジトリに直接蓄積する**点にあります。Issueコメントやマークダウンではなく、1行1レコードのJSONLで記録することで、`jq`やPythonでの機械的な加工が容易になります。自前サーバーは不要で、GitHub Actions無料枠だけで運用できます。そしてJSONLはLLMが最も扱いやすいフォーマットの一つであり、蓄積したデータをそのままLLMに渡して分析させることもできます。記事の後半ではその具体例も紹介します。
 
@@ -554,7 +554,7 @@ cat sync/Mental/2026-03/2026-03-*.jsonl | \
 
 - **データの自由度**: JSONLは任意のツールで加工・分析できる
 - **バージョン管理**: gitの履歴で記録の変更・削除も追跡可能
-- **ポータビリティ**: 特定サービスへの依存がない。サービス終了の心配なし
+- **ポータビリティ**: データの実体はJSONLテキストファイルなので、GitHub以外のGitホスティングやローカルリポジトリにもそのまま移行できる
 - **拡張性**: フィールドを追加するだけで新しいログ種別に対応できる
 - **コスト**: 完全無料（GitHub Actions無料枠 + iPhoneショートカット）
 - **LLM親和性**: JSONLをそのままLLMに渡せる。分析から自分専用エージェントの構築まで
