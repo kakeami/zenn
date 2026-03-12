@@ -16,9 +16,9 @@ published: false
 
 日々の気分や食事、運動などの記録を続けたいと思ったことはないでしょうか。
 
-ライフログの手段はすでにいくつか存在します。[iPhoneショートカット × Notion](https://sizu.me/watayu0828/posts/4iwti6d8ez3r)の組み合わせは手軽ですが、データはNotionのサーバーに依存し、変更履歴の保持も有料プラン限定です。[FxLifeSheet](https://github.com/KrauseFx/FxLifeSheet)のようにTelegramボット + PostgreSQLで本格的なQuantified Selfを実践する方法もありますが、Herokuなどのサーバー運用が必要になります。また、[Apple Shortcutからworkflow_dispatchを叩く方法](https://island94.org/2024/01/trigger-github-actions-workflows-from-apple-shortcuts)は紹介されていますが、ライフログ用途で長期運用している事例は見当たりませんでした。
+ライフログの手段はすでにいくつか存在します。[iPhoneショートカット × Notion](https://sizu.me/watayu0828/posts/4iwti6d8ez3r)の組み合わせは手軽ですが、データはNotionのサーバーに依存し、変更履歴の保持も有料プラン限定です。[FxLifeSheet](https://github.com/KrauseFx/FxLifeSheet)のようにTelegramボット + PostgreSQLで本格的なQuantified Selfを実践する方法もありますが、サーバー運用が必要になります。プレーンテキストで記録する文化としては[Nomie](https://nomie.app/)のようなオープンソースのライフトラッカーもありましたが、2023年2月にサービスを終了しています。また、iPhoneとGitHub Actionsを組み合わせる事例として、[Apple Shortcutからworkflow_dispatchを叩く方法](https://island94.org/2024/01/trigger-github-actions-workflows-from-apple-shortcuts)や、[iPhoneショートカットからGitHub Issueにコメントを投稿し、GitHub Actionsでマークダウンファイルに変換する方法](https://qiita.com/TaigoKuriyama/items/32f3ef128db2b9344e6a)が紹介されています。
 
-本記事で紹介するアプローチの核心は、**プレーンテキスト（JSONL）でデータを蓄積する**ことにあります。自前サーバーは不要で、GitHub Actions無料枠だけで運用できます。そしてJSONLはLLMが最も扱いやすいフォーマットの一つであり、クラウド上のLLMに定期的にデータを投げて分析させる基盤としても機能します。今回はLLM連携の詳細には踏み込みませんが、テキストデータとして自由度高く扱える点が最大のメリットです。
+本記事で紹介するアプローチの特徴は、**構造化データ（JSONL）をGitリポジトリに直接蓄積する**点にあります。Issueコメントやマークダウンではなく、1行1レコードのJSONLで記録することで、`jq`やPythonでの機械的な加工が容易になります。自前サーバーは不要で、GitHub Actions無料枠だけで運用できます。そしてJSONLはLLMが最も扱いやすいフォーマットの一つであり、クラウド上のLLMに定期的にデータを投げて分析させる基盤としても機能します。今回はLLM連携の詳細には踏み込みませんが、テキストデータとして自由度高く扱える点が最大のメリットです。
 
 このシステムを**8ヶ月運用し、5,300件超のメンタルログ**を記録してきました。本記事ではその仕組みをゼロから解説します。
 
@@ -45,10 +45,10 @@ GitHub Actionsのワークフローをトリガーする方法はいくつかあ
 
 | トリガー | 特徴 | iPhoneから利用 |
 |---------|------|---------------|
-| `workflow_dispatch` | GitHub UIやCLIから手動実行。inputsの定義が必要 | △（OAuthが必要） |
+| `workflow_dispatch` | GitHub UIやCLIから手動実行。`inputs`をYAMLで事前定義する必要がある（最大10個、型制約あり） | ○（PATで可能だが、workflow IDの指定が必要） |
 | `repository_dispatch` | 任意のHTTP POSTで発火。`client_payload`で自由にデータ送信 | **◎** |
 
-`repository_dispatch`はPATさえあればシンプルなHTTP POSTで発火でき、`client_payload`に好きなJSONを載せられます。iPhoneショートカットの「URLの内容を取得」アクションとの相性が抜群です。
+どちらもPATによるHTTP POSTで発火できますが、`repository_dispatch`は`client_payload`に任意のJSONを載せられるため、iPhoneショートカットの「URLの内容を取得」アクションとの相性が抜群です。`workflow_dispatch`の`inputs`はYAMLで事前定義が必要かつ型制約（string/boolean/choice/environment）があるため、自由度の面で`repository_dispatch`に軍配が上がります。
 
 ### 無料枠で十分
 
@@ -337,7 +337,7 @@ concurrency:
   cancel-in-progress: false
 ```
 
-同じ`group`のワークフローは同時に実行されず、キューに入って順番に処理されます。`cancel-in-progress: false`がポイントで、これを`true`にすると先行ジョブがキャンセルされてしまいます（＝ログが消失します）。
+同じ`group`のワークフローは同時に実行されません。ただし、**キューの深さは1**（実行中1 + 待機中1）である点に注意が必要です。短時間に3件以上のリクエストが集中すると、待機中のワークフローが新しいものに置き換えられ、中間のログが失われる可能性があります。`cancel-in-progress: false`を設定することで、実行中のジョブがキャンセルされることは防げます。実用上は、記録の間隔が1分以上空いていればこの問題に遭遇することはほぼありません。
 
 **2. `git pull --rebase`**
 
@@ -346,7 +346,7 @@ git pull --rebase origin master || true
 git push
 ```
 
-万が一のフォールバックです。push前にrebaseすることで、直前に別のコミットが入っていても取り込んでからpushできます。`|| true`はrebaseが不要だった場合のエラーを無視するためです。
+万が一のフォールバックです。push前にrebaseすることで、直前に別のコミットが入っていても取り込んでからpushできます。`|| true`はrebase中にコンフリクトが発生した場合などにワークフロー全体が失敗するのを防ぐためです。
 
 ### ファイル分割戦略
 
@@ -510,7 +510,41 @@ for path in sorted(Path("sync/Mental/").rglob("*.jsonl")):
 
 241日間で途切れることなく記録が続いています。濃い緑の日は40〜50件以上記録しており、特に意識的に記録を増やした日のようです。
 
-## まとめと今後の展望
+## 8ヶ月運用してわかったこと
+
+### つらかったこと
+
+**コミット数が膨大になる**
+
+1レコードにつき1コミットが必要なので、単純計算で5,300件超のコミットがリポジトリに積み上がっています。本質的な問題ではありませんが、`git log`が実質的にライフログのタイムラインと化しており、通常の開発用途とは混ぜられません。ライフログ専用リポジトリとして割り切る必要があります。
+
+**意外と衝突する**
+
+先述のconcurrencyキューの深さ（実行中1 + 待機中1）の制約により、立て続けにログを入力するとエラーが発生します。体感では**10秒程度の間隔**を空けないと衝突します。気持ちが高ぶっているときほど複数のログを連続入力したくなるのですが、まさにそういうときに失敗しやすいのが皮肉です。
+
+**iPhoneが手放せなくなる**
+
+これが一番つらいかもしれません。感情の機微を捉えようとするあまり、常にiPhoneを手元に置くクセがつき、**間接的にスクリーンタイムが増えました**。理想的にはIoTデバイス（物理ボタンなど）でメンタルログだけを記録できる仕組みがあれば、スマホ依存を避けつつ記録を続けられるはずです。これは今後の課題です。
+
+**プライベートリポジトリでも不安は残る**
+
+位置情報付きのメンタルデータという極めてセンシティブな情報を、プライベートリポジトリとはいえGitHubに預けている事実は意識しておくべきです。GitHubの利用規約上、プライベートリポジトリの内容にGitHubがアクセスする可能性はゼロではありません。本当に機密性の高いデータを扱う場合は、自前のGitサーバーやローカルリポジトリへの移行も検討すべきでしょう。
+
+### よかったこと
+
+**日常の細かな瞬間に感謝できるようになる**
+
+スコアを付ける行為そのものが、自分の状態を内省するきっかけになります。「天気がいい」「なんとなく体調がいい」といった、普段なら見過ごしてしまう小さなポジティブに気づけるようになりました。
+
+**移動中の良い暇つぶしになる**
+
+出勤時間や、Claude Codeがコーディングしている待ち時間など、手持ち無沙汰になりがちな時間をメンタルログの記録に充てることで、「何もしていない時間」が「自分を振り返る時間」に変わります。
+
+**LLMとの相性が非常に良い**
+
+蓄積したJSONLデータは、自分専用のLLMエージェントを構築する際のコンテキストとして非常に重宝しています。たとえば「最近1週間のメンタルの傾向を分析して」「低スコアのパターンに共通点はある？」といった問いかけに対して、LLMが自分のデータに基づいた具体的な回答を返してくれます。汎用的なアドバイスではなく、**自分だけのデータに基づいた洞察**が得られる点は、このシステムの最大の副産物かもしれません。
+
+## まとめ
 
 本記事では、iPhoneショートカットとGitHub Actionsを組み合わせたライフログシステムを紹介しました。
 
@@ -522,8 +556,6 @@ for path in sorted(Path("sync/Mental/").rglob("*.jsonl")):
 - **拡張性**: フィールドを追加するだけで新しいログ種別に対応できる
 - **コスト**: 完全無料（GitHub Actions無料枠 + iPhoneショートカット）
 
-そして最大のポイントは、**テキストデータとして蓄積したデータはLLMとの親和性が極めて高い**ということです。JSONLファイルをそのままLLMに渡して「最近1週間のメンタルの傾向を分析して」と頼むことも、定期的なGitHub Actionsで自動分析を走らせることもできます。この先の可能性は、蓄積したデータが広げてくれるはずです。
-
 サーバレスで、特別なインフラもいりません。iPhoneとGitHubアカウントがあれば、今日から始められます。
 
 ## 参考リンク
@@ -533,11 +565,13 @@ for path in sorted(Path("sync/Mental/").rglob("*.jsonl")):
 - [Trigger GitHub Actions workflows with inputs from Apple Shortcuts - Island94.org](https://island94.org/2024/01/trigger-github-actions-workflows-from-apple-shortcuts) — Apple ShortcutでGitHub Actionsを起動し、ファイル生成からgit commitまで自動化する事例。本記事のアーキテクチャに最も近い
 - [GitHub Actions + Shortcuts for iOS - Jon Kulton](https://jkulton.com/2022/github-actions-shortcuts-for-ios/) — `workflow_dispatch`をiOSショートカットのHTTPリクエストで叩く方法の解説
 - [How to dispatch a GitHub Workflow from iOS Shortcuts - The Porteur](https://www.theporteur.com/journal/dispatch-github-action-ios-shortcuts) — GitHub Mobileの「Dispatch Workflow」アクションを使う手順
+- [GitHub と Claude Code でタスク管理・日記・個人ナレッジを管理する - Qiita](https://qiita.com/TaigoKuriyama/items/32f3ef128db2b9344e6a) — iPhoneショートカットからGitHub Issueにコメントを投稿し、GitHub Actionsでマークダウンファイルに変換する事例
 
 ### Quantified Self / ライフログ
 
 - [FxLifeSheet - Felix Krause](https://github.com/KrauseFx/FxLifeSheet) — Telegramボット経由で1日75項目のライフデータを手動入力し、PostgreSQLに蓄積するプロジェクト
 - [iPhoneショートカット × Notion活用術](https://sizu.me/watayu0828/posts/4iwti6d8ez3r) — iOSショートカットでヘルスケアデータをNotionに記録する事例
+- [Nomie](https://nomie.app/) — `#mood(4) #pizza`のようなハッシュタグ記法でライフログを記録するオープンソースのトラッカー。2023年2月にサービス終了、[コードは公開済み](https://github.com/open-nomie/nomie6-oss)
 
 ### Pixela
 
